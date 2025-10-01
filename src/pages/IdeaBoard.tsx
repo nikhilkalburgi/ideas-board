@@ -1,38 +1,47 @@
-import { useState, useEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowUp, ArrowLeft, Lightbulb, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { fetchIdeas, createIdea, upvoteIdea } from "@/api/graphql";
 
 interface Idea {
   id: string;
   text: string;
   upvotes: number;
-  createdAt: number;
+  createdAt: string;
 }
 
 const IdeaBoard = () => {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [newIdea, setNewIdea] = useState("");
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // Load ideas from localStorage on mount
+  // Load ideas from API on mount
   useEffect(() => {
-    const stored = localStorage.getItem("ideas");
-    if (stored) {
-      setIdeas(JSON.parse(stored));
-    }
+    const loadIdeas = async () => {
+      try {
+        setLoading(true);
+        const fetchedIdeas = await fetchIdeas();
+        console.log(fetchedIdeas);
+        setIdeas(fetchedIdeas);
+      } catch (error) {
+        toast({
+          title: "Error loading ideas",
+          description: error instanceof Error ? error.message : "Failed to load ideas",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadIdeas();
   }, []);
 
-  // Save ideas to localStorage whenever they change
-  useEffect(() => {
-    if (ideas.length > 0) {
-      localStorage.setItem("ideas", JSON.stringify(ideas));
-    }
-  }, [ideas]);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (newIdea.trim().length === 0) {
@@ -53,28 +62,37 @@ const IdeaBoard = () => {
       return;
     }
 
-    const idea: Idea = {
-      id: Date.now().toString(),
-      text: newIdea.trim(),
-      upvotes: 0,
-      createdAt: Date.now(),
-    };
-
-    setIdeas([idea, ...ideas]);
-    setNewIdea("");
-    
-    toast({
-      title: "Idea shared!",
-      description: "Your brilliant idea has been added to the board.",
-    });
+    try {
+      const idea = await createIdea(newIdea.trim());
+      setIdeas([idea, ...ideas]);
+      setNewIdea("");
+      
+      toast({
+        title: "Idea shared!",
+        description: "Your brilliant idea has been added to the board.",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to share idea",
+        description: error instanceof Error ? error.message : "An error occurred while sharing your idea",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleUpvote = (id: string) => {
-    setIdeas(ideas.map(idea => 
-      idea.id === id 
-        ? { ...idea, upvotes: idea.upvotes + 1 }
-        : idea
-    ));
+  const handleUpvote = async (id: string) => {
+    try {
+      const updatedIdea = await upvoteIdea(id);
+      setIdeas(ideas.map(idea => 
+        idea.id === id ? updatedIdea : idea
+      ));
+    } catch (error) {
+      toast({
+        title: "Failed to upvote",
+        description: error instanceof Error ? error.message : "An error occurred while upvoting",
+        variant: "destructive",
+      });
+    }
   };
 
   const sortedIdeas = [...ideas].sort((a, b) => b.upvotes - a.upvotes);
@@ -171,7 +189,7 @@ const IdeaBoard = () => {
                     <div className="flex-1">
                       <p className="text-lg leading-relaxed">{idea.text}</p>
                       <p className="text-sm text-muted-foreground mt-2">
-                        {new Date(idea.createdAt).toLocaleDateString()} at {new Date(idea.createdAt).toLocaleTimeString()}
+                        {new Date(parseInt(idea.createdAt)).toLocaleDateString()} at {new Date(parseInt(idea.createdAt)).toLocaleTimeString()}
                       </p>
                     </div>
                   </div>

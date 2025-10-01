@@ -1,73 +1,230 @@
-# Welcome to your Lovable project
+# IdeaBoard
 
-## Project info
+A modern web application for sharing and voting on ideas, built with a microservices architecture.
 
-**URL**: https://lovable.dev/projects/d9ad6c0f-6472-4b09-97ea-8b5ed726a9c8
+![Tech Stack](https://skillicons.dev/icons?i=react,nodejs,ts,graphql,postgres,docker)
 
-## How can I edit this code?
+Screenshots:
 
-There are several ways of editing your application.
+![image 1](https://img-getpocket.cdn.mozilla.net/296x148/smart/filters:format(jpeg):quality(60):no_upscale():strip_exif()/https%3A%2F%2Fs3.us-east-1.amazonaws.com%2Fpocket-curatedcorpusapi-prod-images%2F285f3c64-835d-45fa-86c9-3dac61931de2.jpeg)
 
-**Use Lovable**
+![image 2](https://img-getpocket.cdn.mozilla.net/296x148/smart/filters:format(jpeg):quality(60):no_upscale():strip_exif()/https%3A%2F%2Fs3.us-east-1.amazonaws.com%2Fpocket-curatedcorpusapi-prod-images%2F285f3c64-835d-45fa-86c9-3dac61931de2.jpeg)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d9ad6c0f-6472-4b09-97ea-8b5ed726a9c8) and start prompting.
+## Architecture & Technology Choices
 
-Changes made via Lovable will be committed automatically to this repo.
+### Tech Stack & Rationale
 
-**Use your preferred IDE**
+- **Frontend**: React 18 + Vite + TypeScript
+  - React for its robust ecosystem and component reusability
+  - Vite for faster development and optimized builds
+  - TypeScript for type safety and better developer experience
+  - Trade-off: Learning curve for TypeScript, but better maintainability
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Backend**: Node.js + Express + GraphQL
+  - Node.js for JavaScript ecosystem consistency
+  - Express for lightweight, flexible routing
+  - GraphQL for efficient data fetching and strong typing
+  - Trade-off: GraphQL complexity vs REST simplicity
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Database**: PostgreSQL
+  - ACID compliance for data integrity
+  - Rich feature set and JSON support
+  - Excellent performance and scalability
+  - Trade-off: Higher resource usage compared to SQLite
 
-Follow these steps:
+- **UI Components**: Shadcn UI
+  - Modern, accessible components
+  - Customizable with Tailwind CSS
+  - Active community and maintenance
+  - Trade-off: Bundle size vs development speed
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Quick Start
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Prerequisites
 
-# Step 3: Install the necessary dependencies.
-npm i
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Git](https://git-scm.com/downloads)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Run with Docker
+
+```bash
+# Clone the repository
+git clone https://github.com/nikhilkalburgi/ideas-board.git
+cd ideas-board
+
+# Start all services
+docker-compose up --build
+```
+
+### Access the Application
+
+- Frontend: [http://localhost](http://localhost)
+- GraphQL Playground: [http://localhost:4000/graphql](http://localhost:4000/graphql)
+- Database: `localhost:5432`
+
+## API Documentation
+
+### GraphQL Schema
+
+```graphql
+type Idea {
+  id: ID!
+  text: String!
+  upvotes: Int!
+  createdAt: String!
+}
+
+type Query {
+  ideas: [Idea!]!
+  idea(id: ID!): Idea
+}
+
+type Mutation {
+  createIdea(text: String!): Idea!
+  upvoteIdea(id: ID!): Idea!
+}
+```
+
+### Example Queries
+
+#### Fetch All Ideas
+
+```graphql
+query {
+  ideas {
+    id
+    text
+    upvotes
+    createdAt
+  }
+}
+```
+
+#### Create New Idea
+
+```graphql
+mutation {
+  createIdea(text: "Your brilliant idea") {
+    id
+    text
+    upvotes
+    createdAt
+  }
+}
+```
+
+## Development Guide
+
+### Local Setup (Without Docker)
+
+1. **Database Setup**
+
+```bash
+# Create PostgreSQL database
+
+psql -U postgres
+
+# In the PostgreSQL prompt:
+CREATE DATABASE ideaboard;
+\c ideaboard
+\i backend/init.sql
+```
+
+This can be done also using pgAdmin, but `init.sql` is for fast setup.
+
+2. **Backend Setup**
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+3. **Frontend Setup**
+
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Kubernetes (k8s) Infrastructure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Kubernetes provides container orchestration at scale. Here's how we use it:
 
-**Use GitHub Codespaces**
+#### 1. High Availability
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```yaml
+spec:
+  replicas: 3  # Frontend replicas
+  replicas: 2  # Backend replicas
+```
 
-## What technologies are used for this project?
+- Multiple service instances for redundancy
+- Automatic failover
+- Load distribution
+- Trade-off: Increased complexity and resource usage
 
-This project is built with:
+#### 2. Health Monitoring
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 4000
+```
 
-## How can I deploy this project?
+- Automated health checks
+- Self-healing capabilities
+- Ensures service reliability
+- Trade-off: Additional overhead for health checks
 
-Simply open [Lovable](https://lovable.dev/projects/d9ad6c0f-6472-4b09-97ea-8b5ed726a9c8) and click on Share -> Publish.
+#### 3. Secret Management
 
-## Can I connect a custom domain to my Lovable project?
+```yaml
+env:
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-secret
+```
 
-Yes, you can!
+- Secure credential management
+- Environment separation
+- Easy secrets rotation
+- Trade-off: Additional configuration complexity
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+#### 4. Storage Management
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```yaml
+volumes:
+  - name: postgres-storage
+    persistentVolumeClaim:
+      claimName: postgres-pvc
+```
+
+- Persistent data storage
+- Data backup and recovery
+- Storage scaling
+- Trade-off: Storage management complexity
+
+### Development vs Production
+
+#### Local Development
+
+```bash
+docker-compose up --build
+```
+
+- Simpler setup
+- Faster iteration
+- Easy debugging
+
+#### Production (Kubernetes)
+
+```bash
+kubectl apply -f k8s/
+```
+
+- Scalability
+- High availability
+- Production-grade features
