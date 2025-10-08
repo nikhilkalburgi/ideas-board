@@ -3,7 +3,7 @@ databases:
     plan: free
     region: oregon
     databaseName: ideaboard
-    user: postgres
+    user: ideaboard_user
 
 services:
   # Backend Service
