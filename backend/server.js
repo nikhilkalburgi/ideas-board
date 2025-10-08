@@ -16,11 +16,11 @@ app.get('/health', (req, res) => {
 
 // PostgreSQL connection
 const pool = new Pool({
-  host: process.env.DB_HOST || 'db',
-  port: process.env.DB_PORT || 5432,
+  host: process.env.DB_HOST || 'dpg-d3ivj00dl3ps73dgurig-a',
+  port: 5432,
   database: process.env.DB_NAME || 'ideaboard',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
+  user: process.env.DB_USER || 'ideaboard_user',
+  password: process.env.DB_PASSWORD || 'gOXVgldbnulVbckPyFVSfzUAGgwfz37Z',
 });
 
 // GraphQL Schema
