@@ -1,0 +1,48 @@
+databases:
+  - name: ideaboard-db
+    plan: free
+    region: oregon
+    databaseName: ideaboard
+    user: postgres
+
+services:
+  # Backend Service
+  - type: web
+    name: ideaboard-backend
+    env: docker
+    region: oregon
+    plan: free
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DB_HOST
+        value: ${ideaboard-db.HOST}
+      - key: DB_PORT
+        value: ${ideaboard-db.PORT}
+      - key: DB_NAME
+        value: ${ideaboard-db.DATABASE}
+      - key: DB_USER
+        value: ${ideaboard-db.USER}
+      - key: DB_PASSWORD
+        value: ${ideaboard-db.PASSWORD}
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Frontend Service
+  - type: web
+    name: ideaboard-frontend
+    env: docker
+    region: oregon
+    plan: free
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        value: https://ideaboard-backend.onrender.com
+    autoDeploy: true
