@@ -6,9 +6,9 @@ A modern web application for sharing and voting on ideas, built with a microserv
 
 Screenshots:
 
-![image 1](https://img-getpocket.cdn.mozilla.net/296x148/smart/filters:format(jpeg):quality(60):no_upscale():strip_exif()/https%3A%2F%2Fs3.us-east-1.amazonaws.com%2Fpocket-curatedcorpusapi-prod-images%2F285f3c64-835d-45fa-86c9-3dac61931de2.jpeg)
+![image 1](https://github.com/nikhilkalburgi/ideas-board/blob/main/Screenshot%202025-10-01%20212156.png)
 
-![image 2](https://img-getpocket.cdn.mozilla.net/296x148/smart/filters:format(jpeg):quality(60):no_upscale():strip_exif()/https%3A%2F%2Fs3.us-east-1.amazonaws.com%2Fpocket-curatedcorpusapi-prod-images%2F285f3c64-835d-45fa-86c9-3dac61931de2.jpeg)
+![image 2](https://github.com/nikhilkalburgi/ideas-board/blob/main/Screenshot%202025-10-01%20212542.png)
 
 ## Architecture & Technology Choices
 
