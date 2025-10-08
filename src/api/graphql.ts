@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT || 'https://ideaboard-backend-ws12.onrender.com';
+const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT || 'https://ideaboard-backend-ws12.onrender.com/graphql';
 
 interface GraphQLResponse<T> {
   data?: T;
