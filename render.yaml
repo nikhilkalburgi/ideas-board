@@ -45,4 +45,6 @@ services:
         value: production
       - key: VITE_API_URL
         value: https://ideaboard-backend.onrender.com
+      - key: VITE_GRAPHQL_ENDPOINT
+        value: https://ideaboard-backend.onrender.com/graphql  
     autoDeploy: true
